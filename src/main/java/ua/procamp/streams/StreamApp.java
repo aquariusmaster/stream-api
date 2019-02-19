@@ -14,7 +14,7 @@ public class StreamApp {
                 .filter(x -> x > 0) // 1, 2, 3
                 .map(x -> x * x) // 1, 4, 9
 //                .flatMap(x -> AsIntStream.of(x - 1, x, x + 1)) // 0, 1, 2, 3, 4, 5, 8, 9, 10
-                .reduce(0, (a, b) -> a + b + 1); // 42
+                .reduce(0, (a, b) -> a + b); // 42
         return res;
     }
 

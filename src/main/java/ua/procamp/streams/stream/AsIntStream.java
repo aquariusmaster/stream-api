@@ -3,6 +3,7 @@ package ua.procamp.streams.stream;
 import ua.procamp.streams.function.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AsIntStream implements IntStream {
@@ -65,7 +66,21 @@ public class AsIntStream implements IntStream {
 
     @Override
     public void forEach(IntConsumer action) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        label: for (int i : data) {
+            if (operationsPipeline.isEmpty()) {
+                action.accept(i);
+            } else {
+                for(Operation oper : operationsPipeline) {
+                    int el = oper.handle(i);
+                    if (oper.hasValue()) {
+                        action.accept(el);
+                    } else {
+                        oper.setHasValue(true);
+                        continue label;
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -92,7 +107,6 @@ public class AsIntStream implements IntStream {
 
     @Override
     public int reduce(int identity, IntBinaryOperator op) {
-        System.out.println("Reduce start=" + identity);
         label: for (int i : data) {
             System.out.println("El=" + i);
             int temp = 0;
@@ -113,7 +127,25 @@ public class AsIntStream implements IntStream {
 
     @Override
     public int[] toArray() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int[] tempArray = new int[data.length];
+        int index = 0;
+        label: for (int i : data) {
+            if (operationsPipeline.isEmpty()) {
+                return Arrays.copyOf(data, data.length);
+            } else {
+                for(; index < operationsPipeline.size(); index++) {
+                    Operation oper = operationsPipeline.get(index);
+                    int el = oper.handle(i);
+                    if (oper.hasValue()) {
+                        tempArray[index] = el;
+                    } else {
+                        oper.setHasValue(true);
+                        continue label;
+                    }
+                }
+            }
+        }
+        return Arrays.copyOf(tempArray, index);
     }
 
     private abstract static class Operation {
