@@ -6,6 +6,8 @@ import org.junit.Before;
 import ua.procamp.streams.stream.AsIntStream;
 import ua.procamp.streams.stream.IntStream;
 
+import java.util.stream.Stream;
+
 public class StreamAppTest {
     
     private IntStream intStream;
@@ -48,5 +50,18 @@ public class StreamAppTest {
         int result = StreamApp.streamOperations(intStream);
         assertEquals(expResult, result);
     }
+
+    @Test
+    public void testStream() {
+        System.out.println("testFilterMap");
+
+        int reduce = java.util.stream.IntStream.of(1, 2, 3, 4, 5).filter(e -> e > 2).reduce(0, (l, r) -> {
+            System.out.println("l=" + l + ", r=" + r);
+            return l + r;
+        });
+
+        assertEquals(12, reduce);
+    }
+
     
 }

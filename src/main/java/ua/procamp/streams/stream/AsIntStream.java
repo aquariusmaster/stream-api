@@ -10,7 +10,7 @@ public class AsIntStream implements IntStream {
 
     private int[] data;
 
-    private List<Operation> operations = new ArrayList<>();
+    private List<Operation> operationsPipeline = new ArrayList<>();
 
     private AsIntStream() {
         // To Do
@@ -49,13 +49,14 @@ public class AsIntStream implements IntStream {
 
     @Override
     public IntStream filter(IntPredicate predicate) {
-        this.operations.add(new Operation() {
+        this.operationsPipeline.add(new Operation() {
             @Override
-            Integer handle(int e) {
+            int handle(int e) {
                 if (predicate.test(e)) {
                     return e;
                 } else {
-                    return null;
+                    this.setHasValue(false);
+                    return 0;
                 }
             }
         });
@@ -69,16 +70,17 @@ public class AsIntStream implements IntStream {
 
     @Override
     public IntStream map(IntUnaryOperator mapper) {
-
-        this.operations.add(new Operation() {
+        this.operationsPipeline.add(new Operation() {
 
             @Override
-            Integer handle(int e) {
-                return mapper.apply(e);
+            int handle(int e) {
+                int val = mapper.apply(e);
+                System.out.println("Map=" + val);
+                return val;
             }
 
         });
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this;
     }
 
     @Override
@@ -90,16 +92,20 @@ public class AsIntStream implements IntStream {
 
     @Override
     public int reduce(int identity, IntBinaryOperator op) {
-
-        for (int i : data) {
-            for(Operation oper : operations) {
-                Integer el = oper.handle(i);
-                if (el != null) {
-                    op.apply()
+        System.out.println("Reduce start=" + identity);
+        label: for (int i : data) {
+            for(Operation oper : operationsPipeline) {
+                int el = oper.handle(i);
+                System.out.println("Handle: el=" + i + ", identity=" + identity + ", operation has value=" + oper.isHasValue());
+                if (oper.isHasValue()) {
+                    identity = op.apply(identity,i);
+                } else {
+                    oper.setHasValue(true);
+                    continue label;
                 }
             }
         }
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return identity;
     }
 
     @Override
@@ -120,8 +126,18 @@ public class AsIntStream implements IntStream {
 //    }
 
     private abstract static class Operation {
-        abstract Integer handle(int e);
+        private boolean hasValue = true;
+        abstract int handle(int e);
+
+        public boolean isHasValue() {
+            return hasValue;
+        }
+
+        public void setHasValue(boolean hasValue) {
+            this.hasValue = hasValue;
+        }
     }
+
 
 
 }
