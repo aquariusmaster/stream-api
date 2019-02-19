@@ -6,6 +6,7 @@ import org.junit.Before;
 import ua.procamp.streams.stream.AsIntStream;
 import ua.procamp.streams.stream.IntStream;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class StreamAppTest {
@@ -21,7 +22,7 @@ public class StreamAppTest {
     @Test
     public void testStreamOperations() {
         System.out.println("streamOperations");
-        int expResult = 42;
+        int expResult = 14;
         int result = StreamApp.streamOperations(intStream);
         assertEquals(expResult, result);        
     }
@@ -52,15 +53,43 @@ public class StreamAppTest {
     }
 
     @Test
-    public void testStream() {
-        System.out.println("testFilterMap");
+    public void testMin() {
+        System.out.println("testMin");
+        int res = AsIntStream.of(0,2,-3,4,5)
+                .filter(x -> x > 0)
+                .min();
 
-        int reduce = java.util.stream.IntStream.of(1, 2, 3, 4, 5).filter(e -> e > 2).reduce(0, (l, r) -> {
-            System.out.println("l=" + l + ", r=" + r);
-            return l + r;
-        });
+        assertEquals(2, res);
 
-        assertEquals(12, reduce);
+        int res2 = AsIntStream.of(0,2,-3,4,5)
+                .min();
+
+        assertEquals(-3, res2);
+    }
+
+    @Test
+    public void testMax() {
+        System.out.println("testMax");
+        int res = AsIntStream.of(0,2,-3,4,5)
+                .filter(x -> x < 5)
+                .max();
+
+        assertEquals(4, res);
+
+        int res2 = AsIntStream.of(0,2,-3,4,5)
+                .max();
+
+        assertEquals(5, res2);
+    }
+
+    @Test
+    public void testAverage() {
+        System.out.println("testAverage");
+
+        Double res = AsIntStream.of(0,2,-3,4,5)
+                .average();
+
+        assertEquals(Double.valueOf("1.6"), res);
     }
 
     
