@@ -45,7 +45,7 @@ public class StreamAppTest {
     @Test
     public void testFilterMap() {
         System.out.println("testFilterMap");
-        int expResult = 42;
+        int expResult = 14;
         IntStream stream = AsIntStream.of(-2,0,1,2,3);
         int result = StreamApp.streamOperations(intStream);
         assertEquals(expResult, result);

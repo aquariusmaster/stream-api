@@ -4,7 +4,6 @@ import ua.procamp.streams.function.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class AsIntStream implements IntStream {
 
@@ -52,6 +51,7 @@ public class AsIntStream implements IntStream {
         this.operationsPipeline.add(new Operation() {
             @Override
             int handle(int e) {
+                System.out.println("Test e=" + e);
                 if (predicate.test(e)) {
                     return e;
                 } else {
@@ -75,7 +75,7 @@ public class AsIntStream implements IntStream {
             @Override
             int handle(int e) {
                 int val = mapper.apply(e);
-                System.out.println("Map=" + val);
+                System.out.println("Map=" + val + ", e=" + e);
                 return val;
             }
 
@@ -94,16 +94,19 @@ public class AsIntStream implements IntStream {
     public int reduce(int identity, IntBinaryOperator op) {
         System.out.println("Reduce start=" + identity);
         label: for (int i : data) {
+            System.out.println("El=" + i);
+            int temp = 0;
             for(Operation oper : operationsPipeline) {
                 int el = oper.handle(i);
-                System.out.println("Handle: el=" + i + ", identity=" + identity + ", operation has value=" + oper.isHasValue());
-                if (oper.isHasValue()) {
-                    identity = op.apply(identity,i);
+                System.out.println("Handle: el=" + el + ", identity=" + identity + ", operation has value=" + oper.hasValue());
+                if (oper.hasValue()) {
+                    temp = op.apply(identity, el);
                 } else {
                     oper.setHasValue(true);
                     continue label;
                 }
             }
+            identity = temp;
         }
         return identity;
     }
@@ -113,23 +116,11 @@ public class AsIntStream implements IntStream {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-//    private class Operation<T> {
-//        private T operator;
-//
-//        private Operation(T operator) {
-//            this.operator = operator;
-//        }
-//
-//        public T getOperator() {
-//            return operator;
-//        }
-//    }
-
     private abstract static class Operation {
         private boolean hasValue = true;
         abstract int handle(int e);
 
-        public boolean isHasValue() {
+        public boolean hasValue() {
             return hasValue;
         }
 
