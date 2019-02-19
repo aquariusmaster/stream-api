@@ -4,6 +4,7 @@ import ua.procamp.streams.function.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class AsIntStream implements IntStream {
@@ -12,6 +13,8 @@ public class AsIntStream implements IntStream {
 
     private List<Operation> operationsPipeline = new ArrayList<>();
 
+    private Sink currentSink;
+
     private AsIntStream() {
         // To Do
     }
@@ -19,6 +22,8 @@ public class AsIntStream implements IntStream {
     public static IntStream of(int... values) {
         AsIntStream stream = new AsIntStream();
         stream.data = values;
+        stream.currentSink = new Sink(null);
+        stream.currentSink.data = values;
         return stream;
     }
 
@@ -49,6 +54,20 @@ public class AsIntStream implements IntStream {
 
     @Override
     public IntStream filter(IntPredicate predicate) {
+
+        Sink sink = new Sink(currentSink) {
+
+            @Override
+            public boolean hasNext() {
+                return super.hasNext();
+            }
+
+            @Override
+            public Integer next() {
+                return super.next();
+            }
+        };
+
         this.operationsPipeline.add(new Operation() {
             @Override
             int handle(int e) {
@@ -101,8 +120,7 @@ public class AsIntStream implements IntStream {
     @Override
     public IntStream flatMap(IntToIntStreamFunction func) {
 
-
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
@@ -161,6 +179,52 @@ public class AsIntStream implements IntStream {
         }
     }
 
+    private abstract static class InnerStream extends AsIntStream {
+        private IntStream downStream;
 
+        private InnerStream(IntStream downStream) {
+            this.downStream = downStream;
+        }
+
+
+    }
+
+    private static class Sink implements Iterator<Integer> {
+
+        private int[] data;
+        private int elem;
+
+        private Sink downStream;
+
+        private Sink(Sink downStream) {
+            this.downStream = downStream;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public Integer next() {
+            return null;
+        }
+
+        void accept(int i){
+            elem = i;
+        }
+
+        public Sink getDownStream() {
+            return downStream;
+        }
+
+        public int[] getData() {
+            return data;
+        }
+
+        public void setData(int[] data) {
+            this.data = data;
+        }
+    }
 
 }
