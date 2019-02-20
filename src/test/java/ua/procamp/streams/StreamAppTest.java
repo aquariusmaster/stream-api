@@ -1,13 +1,12 @@
 package ua.procamp.streams;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Test;
 import ua.procamp.streams.stream.AsIntStream;
 import ua.procamp.streams.stream.IntStream;
 
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class StreamAppTest {
     
@@ -22,7 +21,7 @@ public class StreamAppTest {
     @Test
     public void testStreamOperations() {
         System.out.println("streamOperations");
-        int expResult = 14;
+        int expResult = 42;
         int result = StreamApp.streamOperations(intStream);
         assertEquals(expResult, result);        
     }
@@ -47,9 +46,28 @@ public class StreamAppTest {
     public void testFilterMap() {
         System.out.println("testFilterMap");
         int expResult = 14;
-        IntStream stream = AsIntStream.of(-2,0,1,2,3);
         int result = StreamApp.streamOperations(intStream);
         assertEquals(expResult, result);
+    }
+
+    @Test
+    public void testFilterMapReduce() {
+        System.out.println("testFilterMapReduce");
+        int res = AsIntStream.of(-1, 0, 1, 2, 3)
+                .filter(x -> x > 0)
+                .map(x -> x * x)
+                .reduce(0, (l, r) -> l + r);
+        assertEquals(14, res);
+    }
+
+    @Test
+    public void testForEach() {
+        System.out.println("forEach");
+        String expResult = "02-345";
+        StringBuilder str = new StringBuilder();
+        AsIntStream.of(0,2,-3,4,5)
+                .forEach(x -> str.append(x));
+        assertEquals(expResult, str.toString());
     }
 
     @Test
@@ -58,12 +76,9 @@ public class StreamAppTest {
         int res = AsIntStream.of(0,2,-3,4,5)
                 .filter(x -> x > 0)
                 .min();
-
         assertEquals(2, res);
-
         int res2 = AsIntStream.of(0,2,-3,4,5)
                 .min();
-
         assertEquals(-3, res2);
     }
 
@@ -73,22 +88,17 @@ public class StreamAppTest {
         int res = AsIntStream.of(0,2,-3,4,5)
                 .filter(x -> x < 5)
                 .max();
-
         assertEquals(4, res);
-
         int res2 = AsIntStream.of(0,2,-3,4,5)
                 .max();
-
         assertEquals(5, res2);
     }
 
     @Test
     public void testAverage() {
         System.out.println("testAverage");
-
         Double res = AsIntStream.of(0,2,-3,4,5)
                 .average();
-
         assertEquals(Double.valueOf("1.6"), res);
     }
 

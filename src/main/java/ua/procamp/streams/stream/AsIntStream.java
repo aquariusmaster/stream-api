@@ -10,10 +10,10 @@ public class AsIntStream implements IntStream {
 
     private int[] data;
 
-    private List<Operation> operationsPipeline = new ArrayList<>();
+    private List<Operation> operationsPipeline;
 
     private AsIntStream() {
-        // To Do
+        operationsPipeline = new ArrayList<>();
     }
 
     public static IntStream of(int... values) {
